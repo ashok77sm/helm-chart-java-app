@@ -1,4 +1,4 @@
-FROM maven
+FROM openjdk:17
 
 COPY target/demo-0.0.1-SNAPSHOT.jar /app/javaweb.jar
 
