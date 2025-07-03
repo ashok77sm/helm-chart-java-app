@@ -3,6 +3,8 @@ pipeline {
     environment {
         AWS_REGION = 'ap-south-1'
         ECR_REPO = '767224848485.dkr.ecr.ap-south-1.amazonaws.com/testrepo'
+        APP_NAME = 'java-app'
+        HELM_CHART_PATH = './java-app-chart' 
     }	
     stages {
         stage('checkout-stage') {
@@ -38,6 +40,16 @@ pipeline {
         stage('Push Docker Image to ECR') {
             steps {
                 sh "docker push ${ECR_REPO}:V${env.BUILD_NUMBER}"
+            }
+        }
+        stage('Deploy to EKS') {
+            steps {
+                sh """
+                helm upgrade --install $APP_NAME $HELM_CHART_PATH \
+                  --set image.repository=$ECR_REPO \
+                  --set image.tag=${env.BUILD_NUMBER} \
+                  --wait
+                """
             }
         }
     }
