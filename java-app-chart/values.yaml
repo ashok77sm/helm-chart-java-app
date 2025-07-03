@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  repository: <your-ecr-repo>
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: your-app.example.com
+      paths:
+        - path: /
+          pathType: Prefix

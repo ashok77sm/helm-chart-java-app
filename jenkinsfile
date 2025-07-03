@@ -1,0 +1,53 @@
+
+pipeline {
+    agent {
+        label 'build'
+    }
+    environment {
+       AWS_REGION = 'ap-south-1'
+       ECR_REPO = '600627350710.dkr.ecr.ap-south-1.amazonaws.com/testrepo'
+    }	
+    stages {
+            stage('checkout-stage') {
+                steps {
+                    git branch: 'master', credentialsId: 'ashoksm', url: 'https://github.com/ashok77sm/docker-sample-java-webapp.git'
+                }
+            }   
+	    stage('build-stage') {
+                steps {
+                   sh 'mvn clean install'
+                }
+            }
+	    stage('Build Docker Image') {
+                steps {
+                   script {
+                       dockerImage = docker.build("${ECR_REPO}:V${env.BUILD_NUMBER}")
+                   }
+                }
+            }
+            stage('Login to AWS ECR') {
+                steps {
+                  withCredentials([usernamePassword(credentialsId: 'aws-ecr-creds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    sh '''
+                        aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+                        aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+                        aws configure set default.region $AWS_REGION
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+                    '''
+                  }
+                }
+            }
+            stage('Push Docker Image to ECR') {
+                steps {
+                    sh "docker push ${ECR_REPO}:V${env.BUILD_NUMBER}"
+                }
+            }
+	    stage('Run Docker Container') {
+               steps {
+                  script {
+                    sh "docker run -d -p 9000:8080 ${ECR_REPO}:V${env.BUILD_NUMBER}"
+                  }
+               }
+	    }
+    }
+}
