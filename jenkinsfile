@@ -44,8 +44,8 @@ pipeline {
         }
         stage('Deploy to EKS') {
             steps {
+                sh 'aws eks update-kubeconfig --region $AWS_REGION --name eks-cluster'
                 sh """
-                aws eks update-kubeconfig --region ap-south-1 --name eks-cluster \
                 helm upgrade --install $APP_NAME $HELM_CHART_PATH \
                   --set image.repository=$ECR_REPO \
                   --set image.tag=${env.BUILD_NUMBER} \
