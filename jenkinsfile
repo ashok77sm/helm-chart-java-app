@@ -5,12 +5,12 @@ pipeline {
     }
     environment {
        AWS_REGION = 'ap-south-1'
-       ECR_REPO = '600627350710.dkr.ecr.ap-south-1.amazonaws.com/testrepo'
+       ECR_REPO = '767224848485.dkr.ecr.ap-south-1.amazonaws.com/testrepo'
     }	
     stages {
             stage('checkout-stage') {
                 steps {
-                    git branch: 'master', credentialsId: 'ashoksm', url: 'https://github.com/ashok77sm/docker-sample-java-webapp.git'
+                    git branch: 'master', credentialsId: 'ashoksm', url: 'https://github.com/ashok77sm/helm-chart-java-app.git'
                 }
             }   
 	    stage('build-stage') {
@@ -42,12 +42,6 @@ pipeline {
                     sh "docker push ${ECR_REPO}:V${env.BUILD_NUMBER}"
                 }
             }
-	    stage('Run Docker Container') {
-               steps {
-                  script {
-                    sh "docker run -d -p 9000:8080 ${ECR_REPO}:V${env.BUILD_NUMBER}"
-                  }
-               }
-	    }
+	    
     }
 }
