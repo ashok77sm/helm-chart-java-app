@@ -11,9 +11,5 @@ service:
 
 ingress:
   enabled: true
-  className: "nginx"
-  hosts:
-    - host: your-app.example.com
-      paths:
-        - path: /
-          pathType: Prefix
+  className: nginx
+
