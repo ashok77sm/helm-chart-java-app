@@ -49,7 +49,7 @@ pipeline {
               withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-ecr-creds']]) {
                 sh """
                   helm upgrade --install java-app ./java-app-chart \
-                     --set image.repository=767224848485.dkr.ecr.ap-south-1.amazonaws.com/testrepo \
+                     --set image.repository=$ECR_REPO \
                      --set image.tag=V${env.BUILD_NUMBER} \
                      --wait
                 """
